@@ -1,0 +1,147 @@
+#!/usr/bin/python
+
+import argparse
+import os
+import re
+import sys
+import subprocess
+
+# Usage: duplicates [ -c <command> | -p ] [-f | -d] ["..."] [<dir1> <dir2> ..]
+
+#PARSING ARGUMENTS
+pattern = None # if given, the file and directory names should match this regex pattern
+
+#finds the pattern and deletes it from the arglist because i could not parse the pattern with argparse library
+arglist = sys.argv[1:]
+for index,item in enumerate(arglist):
+	if item.startswith('"') or item.startswith("'"):
+		if arglist[index-1] != '-c': 
+			# if argument starts with " and before it there is not -c option then it must be the pattern
+			if item.startswith('"'):
+				pattern = item.lstrip('"').rstrip('"') # remove " at the beginning and end
+			elif item.startswith("'"):
+				pattern = item.lstrip("'").rstrip("'")
+			del arglist[index]
+			break
+
+parser = argparse.ArgumentParser()
+
+actiongroup = parser.add_mutually_exclusive_group()
+actiongroup.add_argument("-c", dest="command", help="given command will be executed for all duplicates")
+actiongroup.add_argument("-p", action="store_true", default=True, help="prints the duplicates with a new line between the duplicate sets")
+
+fileordir = parser.add_mutually_exclusive_group()
+fileordir.add_argument("-f", action="store_true", default=True, dest="searchfile",help="search for duplicate files")
+fileordir.add_argument("-d", action="store_false", dest="searchfile",help="search for duplicate directories")
+
+parser.add_argument("dirs", nargs="*")
+
+# arguments without the pattern argument is parsed by argparse
+args = parser.parse_args(arglist)
+
+# if a command is given set print to false
+if args.command != None:
+	args.p = False
+
+currentdir = os.getcwd()
+
+#search for relative path and add the absolute path part to the beginning
+for index,path in enumerate(args.dirs):
+	if not path.startswith(currentdir):
+		args.dirs[index] = currentdir + "/" + path.lstrip('/').rstrip('/')
+
+#dirs is empty, set it current directory
+if not args.dirs:
+	args.dirs.append(currentdir)
+
+#args.command - the command that will be executed for duplicates
+#args.p - if true duplicates will be printed
+#args.searchfile - if true search for duplicate files, otherwise for directories. Default is files
+#args.dirs - list of directories that will be traversed while seaching for duplicates
+
+#END OF PARSING ARGUMENTS
+
+allhashes = {} #dictionary that maps the hash values to the list of absolute paths that have this hash value
+
+# Calculates the sha256 of a file
+#
+# filepath: absolute path of file
+# returns sha256 value as string in hex format (64 character)
+def sha256file(filepath):
+	cmd = 'shasum -a 256 "' + filepath + '"'
+	output = subprocess.check_output(cmd,shell=True)[0:64]
+	return output
+
+# Calculates the sha256 of a string
+#
+# s: a string
+# returns sha256 value as string in hex format (64 character)
+def sha256string(s):
+	# -n option for no newline at the end of string
+	cmd = "echo -n " + s + " | shasum -a 256"
+	output = subprocess.check_output(cmd,shell=True)[0:64]
+	return output
+
+# Traveses the directory and add hash values of files or directories to "allhashes"
+#
+# fullpathname: absolute path of the directory that will be travesed
+# returns the sha256 of the directory
+#
+# note: sha256 of the directory is calcutated as follows:
+# 1-the sha256 for files and directories inside this directory are calculated
+# 2-these values are sorted
+# 3-these values are concatenated
+# 4-the sha256 of the concatenated string is calcuated. this is the sha256 for this directory
+# empty directory has the sha256 value of an empty string
+def traverse(fullpathname):
+	hashlist = [] # contains sha256 hashes for the file and dirs in this directory (note 1)
+	curlist = os.listdir(fullpathname) #list of files and dirs in this directory
+	for filename in curlist:
+		newpath = fullpathname + "/" + filename # absolute path of file or dir
+		if os.path.isfile(newpath):
+			hashoffile = sha256file(newpath)
+			hashlist.append(hashoffile)
+			if args.searchfile: #if we search for duplicate files
+				#either the is not any pattern or the file matches the pattern
+				if pattern == None or re.search(pattern,filename):
+					allhashes.setdefault(hashoffile,[])
+					allhashes[hashoffile].append(newpath)
+		elif os.path.isdir(newpath):
+			hashofdir = traverse(newpath)
+			hashlist.append(hashofdir)
+			if not args.searchfile: # if we search for duplicate directories
+				if pattern == None or re.search(pattern,filename):
+					allhashes.setdefault(hashofdir,[])
+					allhashes[hashofdir].append(newpath)
+		else:
+			print "error"
+	sortedlist = sorted(hashlist) # note 2
+	hashstring = ""
+	for value in sortedlist:
+		hashstring += value # note 3
+	return sha256string(hashstring) # note 4
+
+#MAIN
+
+#traverse directory list
+for directory in args.dirs:
+	dirname = directory.split('/')[-1] #name of the directory
+	hashofdir = traverse(directory)
+	if not args.searchfile: # if we search for duplicate directories
+		#either the is not any pattern or the file matches the pattern
+		if pattern == None or re.search(pattern,dirname):
+			allhashes.setdefault(hashofdir,[])
+			allhashes[hashofdir].append(directory)
+
+# either print the duplicates or execute the command for duplicates
+for key,value in allhashes.iteritems():
+	if len(value) > 1: #if more than 1 file has the same hash value (in other words they are duplicates)
+		if args.p: #if print
+			for duplicate in sorted(value):
+				print duplicate,
+			print
+		else: #else execute command
+			for duplicate in sorted(value):
+				cmd = args.command + ' "' + duplicate + '"'
+				print subprocess.check_output(cmd,shell=True),
+

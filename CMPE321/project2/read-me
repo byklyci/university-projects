@@ -1,0 +1,5 @@
+The program can be compiled by running make command on terminal on linux.
+
+This command gives usage examples:
+> ./storagemanager help 
+

@@ -1,0 +1,24 @@
+*Problem Description
+
+In this project, we should convert the stm source code, which consist of the four basic arithmetic operations, variables, numbers and assignment operation, to LLVM IR code.
+
+First, we should parse the source code. To parse it, we should tokenize it. The token types are numbers, variables, arithmetic operations, parentheses, assignment sign. According to these token types, we should split the expression into substrings. Then, we can call some functions with these substrings, where we parse them further until we only have a number or variable left as a string. This way, we create a parse tree in a recursive way.
+
+The expression is first split into terms, which can be added or subtracted, and secondly into factors, which can be multiplied or divided. The factors can be a variable, number or expression. Since we execute operation in the parse tree from left to right and bottom to top, multiplication and division have precedence over addition and subtraction.
+
+The numbers and variables executed in a postfix notation. When a number or variable reached, it is pushed to the stack. When we reach an arithmetic operation the term/factor after it is evaluated and the operand are popped and operation is executed and the result is push to the stack. In the end, we only have the result of the whole expression in the stack. We assign it to a variable if the is a assingment sign, otherwise we print it.(to the file)
+
+
+*Software Architecture Description
+
+The class Counter stores a counter for static single assignment variables. Its function getCountNum() returns the next number for static single assignment variables.
+
+The function getTokenType finds the type of the first token in the string.
+
+The function posOfMatchingParenthesis finds the matching closing parenthesis in the string, because we need the end index of an expression in parenthesis to get it as a whole when we parse a string.
+
+The function tokenPos returns the index of the end of the first token in the string.
+
+The functions expr, term, moreterms, factor, morefactors split the string into substring using the function getTokenType, tokenPos, posOfMatchingParenthesis and execute the print action when necessary.
+
+The function printError prints error and exits program.

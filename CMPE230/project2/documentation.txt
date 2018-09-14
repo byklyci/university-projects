@@ -1,0 +1,20 @@
+*Problem Description
+
+In this project, we should look for files or directories that are exact duplicates of each other.
+
+The best way to compare files is to hash them. For this purpose, we use SHA256. 
+
+The directory hierarchy forms a tree. Files are the leafs of the tree. Directories are the nodes if the are not empty. The roots of the trees are the directories given as arguments in command line. We start to traverse the tree from the root. Its children are files and directories in it. If we reach a leaf (file), we calculate its hash. We also store the hash if we search for duplicate files. When we reach a node (directory), we call the function for tree traversal recursively to calculate its hash.
+
+For directories to be duplicate, they should contains the same files. Therefore, we calculate the hashes of the files inside the directory. But the name of the files can be different and the hashes can be in different orders. Therefore, we sort the hashes. Finally, we concatenate the hashes and find its SHA256 hash. This is the hash of the directory.
+
+We store the hash of files or directories in map. If a hash points to a list with multiple files, they are duplicates. We execute the necessary action given as command line argument.
+
+
+*Software Architecture Description
+
+traverse - the function that traverses the directories recursively and prints the hashed of the files and directories in it
+
+sha256file - calculates the sha256 of a file
+
+sha256string - calculates the sha256 of a string
