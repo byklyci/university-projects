@@ -47,6 +47,9 @@ Undergraduate projects for courses in Computer Engineering at Bogazici Universit
    * Clap and snap differentiator
    * N-Tap Filter Implementation
 
+## CMPE352/451 - Fundamentals of Software Engineering/Project Development in Software Engineering
+* [Group project:](https://github.com/kilicbaran/bounswe2018group10) Freelancer Platform - This project provides an environment for clients and freelancers to collaborate in a single platform. `Vue.js` `Python` `Django` `Django Rest Framework`
+
 ## [CMPE483 - Blockchain Programming](CMPE483)
 * [**Project 1:**](CMPE483/project1) Autonomous Decentralized Lottery in `Solidity`
 * [**Project 2:**](CMPE483/project2) Web Interface for the Autonomous Decentralized Lottery in project 1 `web3.js` `HTML` `Javascript`
