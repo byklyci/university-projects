@@ -43,7 +43,7 @@ Undergraduate projects for courses in Computer Engineering at Bogazici Universit
    * Changing frequency (pitch) of sound
    * Quadratic Spline Interpolation Implementation
 * [**Project 3:**](CMPE362/project3) `MATLAB`
-   * Combine speech and noise, extract speech and clear SNR (Signal to noise ratio)
+   * Combine speech and noise, extract speech and calculate SNR (Signal to noise ratio)
    * Clap and snap differentiator
    * N-Tap Filter Implementation
 

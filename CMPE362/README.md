@@ -10,6 +10,6 @@ Projects for CMPE362 (Introduction to Signal Processing For Comp. Eng.) course a
    * Changing frequency (pitch) of sound
    * Quadratic Spline Interpolation Implementation
 * [**Project 3:**](project3) `MATLAB`
-   * Combine speech and noise, extract speech and clear SNR (Signal to noise ratio)
+   * Combine speech and noise, extract speech and calculate SNR (Signal to noise ratio)
    * Clap and snap differentiator
    * N-Tap Filter Implementation
