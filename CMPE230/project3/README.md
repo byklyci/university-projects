@@ -1,4 +1,4 @@
-Hexadecimal calculator
+Hexadecimal Calculator in `QT` `C++`
 
 To compile and run:
 ```

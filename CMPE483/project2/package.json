@@ -1,0 +1,10 @@
+{
+  "name": "cmpe483-hw2",
+  "version": "1.0.0",
+  "description": "CMPE 483 Sp. Top. in CMPE Blockchain Programming Fall 2018 Homework 2",
+  "author": "Baran Kılıç",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}

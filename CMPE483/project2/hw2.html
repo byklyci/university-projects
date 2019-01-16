@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>CMPE483 Homework 2</title>
+  <script>
+
+    var abi = [
+      {
+        "constant": false,
+        "inputs": [
+          {
+            "name": "ticket",
+            "type": "uint256"
+          },
+          {
+            "name": "randomNumHash",
+            "type": "bytes32"
+          }
+        ],
+        "name": "buyTicket",
+        "outputs": [
+          {
+            "name": "weekNumber",
+            "type": "uint256"
+          }
+        ],
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "constant": false,
+        "inputs": [
+          {
+            "name": "ticket",
+            "type": "uint256"
+          },
+          {
+            "name": "randomNum",
+            "type": "uint256"
+          }
+        ],
+        "name": "reveal",
+        "outputs": [
+          {
+            "name": "revealed",
+            "type": "bool"
+          },
+          {
+            "name": "refunded",
+            "type": "bool"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "constant": false,
+        "inputs": [
+          {
+            "name": "lotteryWeek",
+            "type": "uint256"
+          },
+          {
+            "name": "ticketNumber",
+            "type": "uint256"
+          }
+        ],
+        "name": "withdrawPrize",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "name": "_charity",
+            "type": "address"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "name": "ticket",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "name": "weekNumber",
+            "type": "uint256"
+          }
+        ],
+        "name": "BuyEvent",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "name": "ticket",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "name": "revealed",
+            "type": "bool"
+          },
+          {
+            "indexed": false,
+            "name": "refunded",
+            "type": "bool"
+          }
+        ],
+        "name": "RevealEvent",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "name": "ticket",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "name": "prize",
+            "type": "uint256"
+          }
+        ],
+        "name": "WithdrawEvent",
+        "type": "event"
+      },
+      {
+        "constant": true,
+        "inputs": [
+          {
+            "name": "randomNum",
+            "type": "uint256"
+          },
+          {
+            "name": "accountAddress",
+            "type": "address"
+          }
+        ],
+        "name": "calculateRandomNumHash",
+        "outputs": [
+          {
+            "name": "hash",
+            "type": "bytes32"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "charity",
+        "outputs": [
+          {
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "name": "lotteries",
+        "outputs": [
+          {
+            "name": "collectedMoney",
+            "type": "uint256"
+          },
+          {
+            "name": "indexForNextRandom",
+            "type": "uint256"
+          },
+          {
+            "name": "donatedToCharity",
+            "type": "bool"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "nextFreeTicket",
+        "outputs": [
+          {
+            "name": "ticketNum",
+            "type": "uint256"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "startOfLottery",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
+
+    var contractaddress = "0xa3f287cce28769e3684281312195dca816aadac1";
+    var contract;
+
+
+    window.addEventListener('load', function () {
+      var web3 = window.web3;
+
+      if (typeof web3 !== 'undefined') {
+        // Use Mist/MetaMask's provider
+        web3js = new Web3(web3.currentProvider);
+        web3js.version.getNetwork((err, netId) => {
+          if (netId != "3") {
+            console.log('Your should switch to the ropsten test network and reload the page.')
+          } else {
+            contract = web3js.eth.contract(abi).at(contractaddress);
+
+            buyTicketEvent = contract.BuyEvent({ 'ticket': buyTicketNum }, function (error, result) {
+              if (!error) {
+                console.log(result);
+                var ticketOfEvent = result.args.ticket;
+                var weekNumberOfEvent = result.args.weekNumber;
+                document.getElementById("weekResult").innerHTML = "You have successfully bought a ticket for week " + weekNumberOfEvent + ".";
+              } else {
+                console.log(error);
+              }
+            });
+
+            revealEvent = contract.RevealEvent({ 'ticket': revealTicketNum }, function (error, result) {
+              if (!error) {
+                console.log(result);
+                var ticketOfEvent = result.args.ticket;
+                var revealed = result.args.revealed;
+                var refunded = result.args.refunded;
+                if (revealed) {
+                  document.getElementById("revealResult").innerHTML = "You have successfully revealed your ticket.";
+                } else if (refunded) {
+                  document.getElementById("revealResult").innerHTML = "Not enough prize is collected for lottery. You have been refunded.";
+                } else {
+                  document.getElementById("revealResult").innerHTML = "Reveal failed.";
+                }
+              } else {
+                console.log(error);
+              }
+            });
+
+            withdrawEvent = contract.WithdrawEvent({ 'ticket': withdrawTicketNum }, function (error, result) {
+              if (!error) {
+                console.log(result);
+                var ticketOfEvent = result.args.ticket;
+                var prize = result.args.prize;
+                document.getElementById("withdrawResult").innerHTML = "You won " + web3js.fromWei(prize, 'ether') + " ethers.";
+              } else {
+                console.log(error);
+              }
+            });
+          }
+        });
+      } else {
+        console.log('No web3? You should consider trying MetaMask!')
+        // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+        web3js = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+      }
+    });
+
+    function buyTicket() {
+      var ticketNum = document.getElementById("ticketNum1").value;
+      var hash = document.getElementById("hash").value;
+      buyTicketNum = ticketNum;
+      rc = contract.buyTicket(ticketNum, hash, { value: web3js.toWei('1000000', 'wei') }, function (error, result) {
+        if (!error) {
+          console.log("Buy ticket transaction hash: " + result);
+        }
+        else {
+          console.error(error);
+        }
+      });
+    }
+
+    var buyTicketNum; // variable to filter the event for buyTicket. 
+    var buyTicketEvent; // to store the callback for event
+
+    function reveal() {
+      var ticketNum = document.getElementById("ticketNum2").value;
+      var randNum = document.getElementById("randNum").value;
+      revealTicketNum = ticketNum;
+      rc = contract.reveal(ticketNum, randNum, function (error, result) {
+        if (!error) {
+          console.log("Reveal transaction hash: " + result);
+        }
+        else {
+          console.error(error);
+        }
+      });
+    }
+
+    var revealTicketNum;
+    var revealEvent;
+
+    function withdraw() {
+      var ticketNum = document.getElementById("ticketNum3").value;
+      var week = document.getElementById("week").value;
+      revealTicketNum = ticketNum;
+      rc = contract.reveal(week, ticketNum, function (error, result) {
+        if (!error) {
+          console.log("Withdraw transaction hash: " + result);
+        }
+        else {
+          console.error(error);
+        }
+      });
+    }
+
+    var withdrawTicketNum;
+    var withdrawEvent;
+
+    function nextFreeTicket() {
+      rc = contract.nextFreeTicket(function (error, result) {
+        if (!error) {
+          var result = JSON.stringify(result);
+          document.getElementById("freeTicketResult").innerHTML = "Next free ticket: " + result;
+        }
+        else {
+          console.error(error);
+        }
+      });
+    }
+
+    function calculateHash() {
+      var randNum = document.getElementById("calHashRandNum").value;
+      var addr = document.getElementById("address").value;
+      rc = contract.calculateRandomNumHash(randNum, addr, function (error, result) {
+        if (!error) {
+          var resultStr = JSON.stringify(result);
+          document.getElementById("hashResult").innerHTML = "Hash: " + resultStr;
+          document.getElementById("hash").value = result;
+        }
+        else {
+          console.error(error);
+        }
+      });
+    }
+  </script>
+</head>
+
+<body>
+
+  <h1>CMPE483 Homework 2 - Autonomous Lottery</h1>
+
+  <div>
+    <h2>Buy Ticket</h2>
+    <form>
+      <p>Ticket Number: <input type="text" id="ticketNum1"> </p>
+      <p>Hash: <input type="text" id="hash"> </p>
+    </form>
+    <button type="button" onclick="buyTicket()">Buy Ticket</button>
+    <p id="weekResult"></p>
+  </div>
+
+  <div>
+    <h2>Reveal Random Number</h2>
+    <form>
+      <p>Ticket Number: <input type="text" id="ticketNum2"> </p>
+      <p>Random Number: <input type="text" id="randNum"> </p>
+    </form>
+    <button type="button" onclick="reveal()">Reveal Random Number</button>
+    <p id="revealResult"></p>
+  </div>
+
+  <div>
+    <h2>Withdraw Prize</h2>
+    <form>
+      <p>Lottery Week: <input type="text" id="week"> </p>
+      <p>Ticket Number: <input type="text" id="ticketNum3"> </p>
+    </form>
+    <button type="button" onclick="withdraw()">Withdraw Prize</button>
+    <p id="withDrawResult"></p>
+  </div>
+
+  <div>
+    <h2>Get Information</h2>
+    <div>
+      <h3>Next Free Ticket</h3>
+      <button type="button" onclick="nextFreeTicket()">Get next free ticket number</button>
+      <p id="freeTicketResult"></p>
+    </div>
+    <div>
+      <h3>Calculate Hash</h3>
+      <form>
+        <p>Random Number: <input type="text" id="calHashRandNum"> </p>
+        <p>Account Address: <input type="text" id="address"> </p>
+      </form>
+      <button type="button" onclick="calculateHash()">Calculate Hash</button>
+      <p id="hashResult"></p>
+    </div>
+  </div>
+</body>
+
+</html>

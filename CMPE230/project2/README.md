@@ -1,1 +1,1 @@
-Duplicate file finder
+Duplicate file finder in `Python`
