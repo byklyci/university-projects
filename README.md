@@ -22,7 +22,7 @@ Undergraduate projects for courses in Computer Engineering at Bogazici Universit
 * [**Project 3:**](CMPE260/Smalltalk) A turn based DOTA game in `Smalltalk`
 
 ## [CMPE300 - Analysis of Algorithms](CMPE300)
-* [**MPI Project:**](CMPE300/mpi-project-cpp) A work occurrence counter using MapReduce on MPI (Message Passing Interface) in `C++` `MPI`
+* [**MPI Project:**](CMPE300/mpi-project-cpp) A word occurrence counter using MapReduce on MPI (Message Passing Interface) in `C++` `MPI`
 
 ## [CMPE321 - Principles of Programming Languages](CMPE321)
 * [**Project 1:**](CMPE321/project1) Design of Storage Manager System (Part 1/2)
